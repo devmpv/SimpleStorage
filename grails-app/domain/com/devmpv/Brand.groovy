@@ -6,6 +6,8 @@ import grails.rest.Resource
 class Brand {
 	String title
 	static hasMany = [items: Item]
-	static constraints = {
+	static mapping = {
+		id column: 'id', generator: 'increment'
 	}
+	static constrains = { title unique: true }
 }
