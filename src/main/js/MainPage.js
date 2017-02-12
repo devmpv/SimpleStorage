@@ -1,10 +1,21 @@
 'use strict';
 
-import { Button, ButtonGroup, Table, FormGroup, Form, FormControl, ControlLabel, HelpBlock, ButtonToolbar, Pagination, Modal, Checkbox, InputGroup } from 'react-bootstrap';
+import { Grid, Row, Col, Panel, Button, ButtonGroup, Table, FormGroup, Form, FormControl, ControlLabel, HelpBlock, ButtonToolbar, Pagination, Modal, Checkbox, InputGroup } from 'react-bootstrap';
 const client = require('./client');
 const React = require('react');
+const NotificationSystem = require('react-notification-system');
 
 class MainPage extends React.Component {
+
+    _notificationSystem: null;
+
+    _addNotification(level, title, message) {
+        this._notificationSystem.addNotification({
+            title: title,
+            message: message,
+            level: level
+        });
+    }
 
     constructor(props) {
         super(props);
@@ -19,6 +30,7 @@ class MainPage extends React.Component {
         this.modalClose = this.modalClose.bind(this);
         this.modalOpen = this.modalOpen.bind(this);
         this.getBrandList = this.getBrandList.bind(this);
+        this._addNotification = this._addNotification.bind(this);
     }
 
     modalClose() {
@@ -55,6 +67,7 @@ class MainPage extends React.Component {
     }
 
     componentDidMount() {
+        this._notificationSystem = this.refs.notificationSystem;
         this.loadFromServer(this.state.activePage, this.state.search, this.state.lowcount);
     }
 
@@ -69,9 +82,11 @@ class MainPage extends React.Component {
                               entity: form,
                               headers: {'Content-Type': 'multipart/form-data' }
                             };
-            client(request).done(() => {
-                  this.loadFromServer(this.state.pageSize, this.state.search, this.state.lowcount);
-            });
+            client(request).then(success => {
+                      this.loadFromServer(this.state.pageSize, this.state.search, this.state.lowcount);
+            }, error => {
+                      this._addNotification('error', 'Error uploading data', error.status.code==403 ? 'Access denied' : 'Intenal server error')
+            }).done();
         }
     }
 
@@ -96,20 +111,25 @@ class MainPage extends React.Component {
             client({
                   method: 'PUT', path: '/item/'+this.state.currentItem.id, entity: this.state.currentItem,
                   headers: {'Content-Type': 'application/json'}
-            }).done(response => {
-                console.log(response);
+            }).then(success => {
+                this._addNotification('success', 'Updated successfuly')
                 this.loadFromServer(this.state.activePage, this.state.search, this.state.lowcount);
-            });
+                this.modalClose();
+            }, error => {
+                this._addNotification('error', 'Error updating item', error.status.code==403 ? 'Access denied' : 'Intenal server error')
+            }).done();
         } else {
             client({
                   method: 'POST', path: '/item/', entity: this.state.currentItem,
                   headers: {'Content-Type': 'application/json'}
-            }).done(response => {
-                console.log(response);
+            }).then(success => {
+                this._addNotification('success', 'Created successfuly')
                 this.loadFromServer(this.state.activePage, this.state.search, this.state.lowcount);
-            });
+                this.modalClose();
+            }, error => {
+                this._addNotification('error', 'Error creating new item', error.status.code==403 ? 'Access denied' : 'Intenal server error')
+            }).done();
         }
-        this.modalClose();
     }
 
     handleSearch(event) {
@@ -133,11 +153,14 @@ class MainPage extends React.Component {
     handleDelete(event){
         event.preventDefault();
         client({
-              method: 'DELETE', path: '/item/'+event.target.id
-        }).done(response => {
-            console.log(response);
+            method: 'DELETE', path: '/item/'+event.target.id
+        }).then(success => {
+            this._addNotification('success', 'Deleted successfuly')
             this.loadFromServer(this.state.activePage, this.state.search, this.state.lowcount);
-        });
+        },
+        error=>{
+            this._addNotification('error','Error deleting item', error.status.code==403 ? 'Access denied' : 'Intenal server error')
+        }).done();
     }
 
     getBrandList(){
@@ -150,54 +173,66 @@ class MainPage extends React.Component {
 
     render() {
         let brands = this.state.brands.map(brand =>
-          <option key={brand.id} value={brand.id}>{brand.title}</option>
+            <option key={brand.id} value={brand.id}>{brand.title}</option>
         )
         let items = this.state.items.map(item =>
-          <tr key={item.id}>
-            <td>{item.title}</td><td>{item.br_title}</td><td>{item.size}</td><td>{item.count}</td><td>{item.price}</td><td>{item.extId}</td>
-            <td>
-              <ButtonToolbar>
-                <ButtonGroup><Button id={item.id} type="button" bsSize="xsmall" bsStyle="info" placeholder="Edit item" onClick={this.modalOpen}>E</Button></ButtonGroup>
-                <ButtonGroup><Button id={item.id} type="button" bsSize="xsmall" bsStyle="warning" placeholder="Delete item" onClick={this.handleDelete}>x</Button></ButtonGroup>
-              </ButtonToolbar>
-            </td>
-          </tr>
+            <tr key={item.id}>
+              <td>{item.title}</td><td>{item.br_title}</td><td>{item.size}</td><td>{item.count}</td><td>{item.price}</td><td>{item.extId}</td>
+              <td>
+                <ButtonToolbar>
+                  <ButtonGroup><Button id={item.id} type="button" bsSize="xsmall" bsStyle="info" placeholder="Edit item" onClick={this.modalOpen}>E</Button></ButtonGroup>
+                  <ButtonGroup><Button id={item.id} type="button" bsSize="xsmall" bsStyle="warning" placeholder="Delete item" onClick={this.handleDelete}>x</Button></ButtonGroup>
+                </ButtonToolbar>
+              </td>
+            </tr>
         );
         return (
           <div>
-              <Form inline onSubmit={this.handleUpload}>
-                <FormGroup controlId="formFile">
-                  <ControlLabel>Import data from csv/xls</ControlLabel>
-                  <FormControl type="file" placeholder="Upload csv/xsl file.." onChange={this.handleFileChange}/>
-                  <FormControl.Feedback />
-                </FormGroup>
-                <Button type="submit">Upload</Button>
-                <FormGroup controlId="search">
-                  <ControlLabel>Search</ControlLabel>
-                  <FormControl type="input" placeholder="Title or Brand" onChange={this.handleSearch}/>
-                  <FormControl.Feedback />
-                </FormGroup>
-                <Button id="export" bsStyle="success" bsSize="small" href={"/search/export?title="+this.state.search+"&brand="+this.state.search}>Export..</Button>
-                <FormGroup controlId="lowcount">
-                  <Checkbox id="lowcount" inline onChange={this.handleSearch} checked={this.state.lowcount}>Low count</Checkbox>
-                </FormGroup>
-              </Form>
-              <Button id="new" bsStyle="primary"  bsSize="xsmall" onClick={this.modalOpen}>Create new</Button>
+                  <Grid>
+                      <Row>
+                        <Col xs={6} md={4}>
+                          <Panel header="Items" bsStyle="info"><div>
+                            <Button id="new" bsStyle="primary"  bsSize="large" onClick={this.modalOpen}>Create new</Button></div>
+                            <div><Pagination prev next first last ellipsis boundaryLinks
+                                items={~~(this.state.total / this.state.pageSize) + 1}
+                                maxButtons={5}
+                                activePage={this.state.activePage}
+                                onSelect={this.handlePageSelect} /></div>
+                          </Panel></Col>
+                        <Col xs={6} md={4}>
+                          <Panel header="Import" bsStyle="warning">
+                            <Form onSubmit={this.handleUpload}>
+                              <FormGroup controlId="formFile">
+                                <ControlLabel>Import data from csv/xls</ControlLabel>
+                                <FormControl type="file" placeholder="Upload csv/xsl file.." onChange={this.handleFileChange}/>
+                                <FormControl.Feedback />
+                              </FormGroup>
+                              <Button type="submit">Upload</Button>
+                            </Form>
+                          </Panel>
+                        </Col>
+                        <Col xs={6} md={4}><Panel header="Search/Export" bsStyle="success"><Form>
+                            <FormGroup controlId="lowcount">
+                              <Checkbox id="lowcount" inline onChange={this.handleSearch} checked={this.state.lowcount}>Low count</Checkbox>
+                            </FormGroup>
+                            <FormGroup controlId="search">
+                              <ControlLabel>Search</ControlLabel>
+                              <FormControl type="input" placeholder="Title or Brand" onChange={this.handleSearch}/>
+                              <FormControl.Feedback />
+                            </FormGroup>
+                            <Button id="export" bsStyle="success" bsSize="small" href={"/search/export?title="+this.state.search+"&brand="+this.state.search}>Export..</Button>
+                          </Form></Panel></Col>
+                      </Row>
+                  </Grid>
               <Table striped bordered condensed hover>
-                  <thead>
-                    <tr>
+                  <thead><tr>
                       <th>Title</th><th>Brand</th><th>Size</th><th>Count</th><th>Price</th><th>External ID</th><th>Actions</th>
-                    </tr>
-                  </thead>
+                  </tr></thead>
                   <tbody>
                       {items}
                   </tbody>
                   <tfoot><tr><td colSpan='7'>
-                    <Pagination prev next first last ellipsis boundaryLinks
-                        items={~~(this.state.total / this.state.pageSize) + 1}
-                        maxButtons={5}
-                        activePage={this.state.activePage}
-                        onSelect={this.handlePageSelect} />
+
                   </td></tr></tfoot>
               </Table>
               <Modal show={this.state.showModal} onHide={this.modalClose} onSubmit={this.handleSubmit}>
@@ -251,6 +286,7 @@ class MainPage extends React.Component {
                   <Modal.Footer>
                   </Modal.Footer>
               </Modal>
+              <NotificationSystem ref="notificationSystem" />
           </div>
         )
     }
