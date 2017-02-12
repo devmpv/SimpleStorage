@@ -47,7 +47,7 @@ class MainPage extends React.Component {
             params.count = 5;
         }
         client({
-              method: 'GET', path: '/api/search/', params: params
+              method: 'GET', path: '/search/', params: params
         }).done(response => {
             this.setState({items: response.entity.result, total: response.entity.count});
         });
@@ -94,7 +94,7 @@ class MainPage extends React.Component {
         event.preventDefault();
         if (this.state.currentItem.id) {
             client({
-                  method: 'PUT', path: '/api/items/'+this.state.currentItem.id, entity: this.state.currentItem,
+                  method: 'PUT', path: '/item/'+this.state.currentItem.id, entity: this.state.currentItem,
                   headers: {'Content-Type': 'application/json'}
             }).done(response => {
                 console.log(response);
@@ -102,7 +102,7 @@ class MainPage extends React.Component {
             });
         } else {
             client({
-                  method: 'POST', path: '/api/items', entity: this.state.currentItem,
+                  method: 'POST', path: '/item/', entity: this.state.currentItem,
                   headers: {'Content-Type': 'application/json'}
             }).done(response => {
                 console.log(response);
@@ -133,7 +133,7 @@ class MainPage extends React.Component {
     handleDelete(event){
         event.preventDefault();
         client({
-              method: 'DELETE', path: '/api/items/'+event.target.id
+              method: 'DELETE', path: '/item/'+event.target.id
         }).done(response => {
             console.log(response);
             this.loadFromServer(this.state.activePage, this.state.search, this.state.lowcount);
@@ -142,7 +142,7 @@ class MainPage extends React.Component {
 
     getBrandList(){
       client({
-            method: 'GET', path: '/api/brands/'
+            method: 'GET', path: '/brand/'
       }).done(response => {
           this.setState({brands: response.entity});
       });
@@ -226,7 +226,7 @@ class MainPage extends React.Component {
                       </FormGroup>
                       <FormGroup controlId="brand">
                         <ControlLabel>Brand</ControlLabel>
-                        <FormControl componentClass="select" placeholder="Select brand" defaultValue={this.state.currentItem.br_title ? this.state.currentItem_br_id : 0}
+                        <FormControl componentClass="select" placeholder="Select brand" defaultValue={this.state.currentItem.br_title ? this.state.currentItem.br_id : 0}
                           onChange={this.handleChange} >
                           <option value="">...</option>
                           {brands}

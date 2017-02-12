@@ -7,8 +7,10 @@ import org.grails.plugins.excelimport.*
 import com.devmpv.Brand
 import com.devmpv.Item
 
+import grails.plugin.springsecurity.annotation.Secured
 import grails.transaction.Transactional
 
+@Secured('ROLE_ADMIN')
 class UploadController {
 	def excelImportService
 	@Transactional

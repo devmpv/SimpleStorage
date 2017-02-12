@@ -5,8 +5,10 @@ import org.hibernate.criterion.CriteriaSpecification
 
 import com.devmpv.Item
 
+import grails.plugin.springsecurity.annotation.Secured
 import pl.touk.excel.export.WebXlsxExporter
 
+@Secured('IS_AUTHENTICATED_REMEMBERED')
 class SearchController {
 	static responseFormats = ['json']
 	def index(params) {

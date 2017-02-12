@@ -1,8 +1,10 @@
 package com.devmpv
 
+import grails.plugin.springsecurity.annotation.Secured
 import grails.rest.Resource
 
-@Resource(uri='/api/brands', formats=['json'])
+@Resource(uri='/brand', formats=['json'])
+@Secured('IS_AUTHENTICATED_REMEMBERED')
 class Brand {
 	String title
 	static hasMany = [items: Item]

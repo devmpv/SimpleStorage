@@ -1,8 +1,10 @@
 package com.devmpv
 
+import grails.plugin.springsecurity.annotation.Secured
 import grails.rest.Resource
 
-@Resource(uri='/api/items', formats=['json'])
+@Resource(uri='/item', formats=['json'])
+@Secured('ROLE_ADMIN')
 class Item {
 	String extId
 	String title
