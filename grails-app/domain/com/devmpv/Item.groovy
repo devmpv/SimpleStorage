@@ -9,13 +9,11 @@ class Item {
 	static belongsTo = [brand: Brand]
 	int size
 	int count
+	float price
 
 	static constraints = {
 		title blank:false
 		extId unique: true
 	}
-	static mapping = {
-		id column: 'item_id'
-		columns { brand lazy:false }
-	}
+	static mapping = { id column: 'item_id' }
 }

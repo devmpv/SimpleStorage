@@ -25,9 +25,9 @@ class UploadController {
 		]
 		Workbook workbook = WorkbookFactory.create(file.inputStream)
 		def itemList = excelImportService.columns(workbook, CONFIG_BOOK_COLUMN_MAP)
-		def brand2 = new Brand(title: "ImportCSV").save()
+		def brand = Brand.findByTitle('ImportXLS')
 		itemList.each { Map map ->
-			def item = new Item(extId: map.get('extId'), title: map.get('title'), brand: brand2, size: 50, count: map.get('count'))
+			def item = new Item(extId: map.get('extId'), title: map.get('title'), brand: brand, size: 50, count: map.get('count'))
 			item.save(flush: true)
 		}
 	}
