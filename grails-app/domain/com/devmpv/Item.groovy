@@ -14,8 +14,11 @@ class Item {
 	float price
 
 	static constraints = {
-		title blank:false
-		extId unique: true
+		title blank:false, size: 5..50
+		extId unique: true, blank: false
+		price validator: { val -> val >= 0 }
+		size validator: { val -> val > 0 }
+		count validator: { val -> val >= 0 }
 	}
 	static mapping = { id column: 'item_id' }
 }

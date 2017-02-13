@@ -188,42 +188,42 @@ class MainPage extends React.Component {
         );
         return (
           <div>
-                  <Grid>
-                      <Row>
-                        <Col xs={6} md={4}>
-                          <Panel header="Items" bsStyle="info"><div>
-                            <Button id="new" bsStyle="primary"  bsSize="large" onClick={this.modalOpen}>Create new</Button></div>
-                            <div><Pagination prev next first last ellipsis boundaryLinks
-                                items={~~(this.state.total / this.state.pageSize) + 1}
-                                maxButtons={5}
-                                activePage={this.state.activePage}
-                                onSelect={this.handlePageSelect} /></div>
-                          </Panel></Col>
-                        <Col xs={6} md={4}>
-                          <Panel header="Import" bsStyle="warning">
-                            <Form onSubmit={this.handleUpload}>
-                              <FormGroup controlId="formFile">
-                                <ControlLabel>Import data from csv/xls</ControlLabel>
-                                <FormControl type="file" placeholder="Upload csv/xsl file.." onChange={this.handleFileChange}/>
-                                <FormControl.Feedback />
-                              </FormGroup>
-                              <Button type="submit">Upload</Button>
-                            </Form>
-                          </Panel>
-                        </Col>
-                        <Col xs={6} md={4}><Panel header="Search/Export" bsStyle="success"><Form>
-                            <FormGroup controlId="lowcount">
-                              <Checkbox id="lowcount" inline onChange={this.handleSearch} checked={this.state.lowcount}>Low count</Checkbox>
-                            </FormGroup>
-                            <FormGroup controlId="search">
-                              <ControlLabel>Search</ControlLabel>
-                              <FormControl type="input" placeholder="Title or Brand" onChange={this.handleSearch}/>
-                              <FormControl.Feedback />
-                            </FormGroup>
-                            <Button id="export" bsStyle="success" bsSize="small" href={"/search/export?title="+this.state.search+"&brand="+this.state.search}>Export..</Button>
-                          </Form></Panel></Col>
-                      </Row>
-                  </Grid>
+            <Grid>
+                  <Row>
+                    <Col xs={6} md={4}>
+                      <Panel header="Items" bsStyle="info"><div>
+                        <Button id="new" bsStyle="primary"  bsSize="large" onClick={this.modalOpen}>Create new</Button></div>
+                        <div><Pagination prev next first last ellipsis boundaryLinks
+                            items={~~(this.state.total / this.state.pageSize) + 1}
+                            maxButtons={5}
+                            activePage={this.state.activePage}
+                            onSelect={this.handlePageSelect} /></div>
+                      </Panel></Col>
+                    <Col xs={6} md={4}>
+                      <Panel header="Import" bsStyle="warning">
+                        <Form onSubmit={this.handleUpload}>
+                          <FormGroup controlId="formFile">
+                            <ControlLabel>Import data from csv/xls</ControlLabel>
+                            <FormControl type="file" placeholder="Upload xls file.." onChange={this.handleFileChange}/>
+                            <FormControl.Feedback />
+                          </FormGroup>
+                          <Button type="submit">Upload</Button>
+                        </Form>
+                      </Panel>
+                    </Col>
+                    <Col xs={6} md={4}><Panel header="Search/Export" bsStyle="success"><Form>
+                        <FormGroup controlId="lowcount">
+                          <Checkbox id="lowcount" inline onChange={this.handleSearch} checked={this.state.lowcount}>Low count</Checkbox>
+                        </FormGroup>
+                        <FormGroup controlId="search">
+                          <ControlLabel>Search</ControlLabel>
+                          <FormControl type="input" placeholder="title or brand" onChange={this.handleSearch}/>
+                          <FormControl.Feedback />
+                        </FormGroup>
+                        <Button id="export" bsStyle="success" bsSize="small" href={"/search/export?title="+this.state.search+"&brand="+this.state.search}>Export..</Button>
+                      </Form></Panel></Col>
+                  </Row>
+              </Grid>
               <Table striped bordered condensed hover>
                   <thead><tr>
                       <th>Title</th><th>Brand</th><th>Size</th><th>Count</th><th>Price</th><th>External ID</th><th>Actions</th>
@@ -231,9 +231,6 @@ class MainPage extends React.Component {
                   <tbody>
                       {items}
                   </tbody>
-                  <tfoot><tr><td colSpan='7'>
-
-                  </td></tr></tfoot>
               </Table>
               <Modal show={this.state.showModal} onHide={this.modalClose} onSubmit={this.handleSubmit}>
                   <Modal.Header closeButton>
